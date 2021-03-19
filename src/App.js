@@ -1,11 +1,23 @@
 import React from "react";
+import { Switch, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage/HomePage";
 
-import HomePage from "./pages/HomePage";
+function DifferentHats() {
+  return <div>hi</div>;
+}
+
 function App() {
   return (
     <div>
       {" "}
-      <HomePage />{" "}
+      <Switch>
+        <Route path="/" exact>
+          <HomePage />{" "}
+        </Route>
+        <Route path="/hat" exact>
+          <DifferentHats />
+        </Route>
+      </Switch>
     </div>
   );
 }
