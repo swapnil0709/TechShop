@@ -57,6 +57,7 @@ class Directory extends React.Component {
             title={title.toUpperCase()}
             imageUrl={imageUrl}
             size={size}
+            linkUrl={linkUrl}
           />
         ))}
       </div>
