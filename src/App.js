@@ -5,19 +5,44 @@ import ShopPage from "./pages/ShopPage/ShopPage";
 import "./App.css";
 import Header from "./components/Header/Header";
 import SignInSignUp from "./pages/SignIn_SignUp/SignInSignUp";
+import { auth } from "./Firebase/firebase.utils";
 
-function App() {
-  return (
-    <div>
-      <Header />
-      <Switch>
-        <Route path="/" exact component={HomePage}></Route>
-        {/* <Route path="/shop/hats" exact component={ShopPage}></Route> */}
-        <Route path="/shop" exact component={ShopPage}></Route>
-        <Route path="/signin" exact component={SignInSignUp} />
-      </Switch>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentUser: null, //This state will store the authenticated user
+    };
+  }
+  unsubscribeFromAuth = null; //We use this to keep track of open authStatus as we will need to manually close it when component unmounts to avoid memory leaks.
+
+  componentDidMount() {
+    //Here we update the currentUser who signedIn/signedOut
+    this.unsubscribeFromAuth = auth.onAuthStateChanged((user) => {
+      //Firebase method to track changes when auth state changes it runs
+      this.setState({ currentUser: user });
+      console.log(user);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth();
+    //Component is unmounted and we no longer need auth status so we clean it up here.
+  }
+
+  render() {
+    return (
+      <div>
+        <Header currentUser={this.state.currentUser} />
+        <Switch>
+          <Route path="/" exact component={HomePage}></Route>
+          {/* <Route path="/shop/hats" exact component={ShopPage}></Route> */}
+          <Route path="/shop" exact component={ShopPage}></Route>
+          <Route path="/signin" exact component={SignInSignUp} />
+        </Switch>
+      </div>
+    );
+  }
 }
 
 export default App;
