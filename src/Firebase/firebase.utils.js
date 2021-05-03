@@ -13,6 +13,33 @@ const config = {
   measurementId: "G-YXHYPSMV2V",
 };
 
+// This is the object which is returned when a user is authenticated and it has the data.
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return; //if there is no object then just return.
+
+  // If we do have the object then we want to store the data in firebase store in users collection.
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+  const snapshot = await userRef.get();
+  if (!snapshot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData,
+      });
+    } catch (error) {
+      console.log("error creating user", error.message);
+    }
+  }
+  return userRef;
+};
+
+//The below lines are for authentication purposes.
+
 firebase.initializeApp(config);
 
 export const auth = firebase.auth();
