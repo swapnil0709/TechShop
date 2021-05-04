@@ -6,24 +6,21 @@ import "./App.css";
 import Header from "./components/Header/Header";
 import SignInSignUp from "./pages/SignIn_SignUp/SignInSignUp";
 import { auth, createUserProfileDocument } from "./Firebase/firebase.utils";
+import { connect } from "react-redux";
+import setCurrentUser from "./Redux/user/user.action";
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentUser: null, //This state will store the authenticated user
-    };
-  }
   unsubscribeFromAuth = null; //We use this to keep track of open authStatus as we will need to manually close it when component unmounts to avoid memory leaks.
 
   componentDidMount() {
+    const { setCurrentUser } = this.props;
     //Here we update the currentUser who signedIn/signedOut
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
 
         userRef.onSnapshot((snapshot) => {
-          this.setState({
+          setCurrentUser({
             currentUser: {
               id: snapshot.id,
               ...snapshot.data(),
@@ -31,7 +28,7 @@ class App extends React.Component {
           });
         });
       } else {
-        this.setState({ currentUser: userAuth });
+        setCurrentUser(userAuth);
       }
 
       //Firebase method to track changes when auth state changes it runs
@@ -47,7 +44,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header currentUser={this.state.currentUser} />
+        <Header />
         <Switch>
           <Route path="/" exact component={HomePage}></Route>
           {/* <Route path="/shop/hats" exact component={ShopPage}></Route> */}
@@ -58,5 +55,7 @@ class App extends React.Component {
     );
   }
 }
-
-export default App;
+const mapDispatchToProps = (dispatch) => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+});
+export default connect(null, mapDispatchToProps)(App);
